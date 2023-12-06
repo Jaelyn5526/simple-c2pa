@@ -35,8 +35,8 @@ publish_apple:
     - echo "Updating Package.swift..."
     - echo $FRAMEWORK_URL
     - echo $CHECKSUM
-    - 'sed -i "s|url: \\".*\\"|url: \\"${FRAMEWORK_URL}"\\"|g" Package.swift'
-    - 'sed -i "s|checksum: \\".*\\"|checksum: \\"${CHECKSUM}"\\"|g" Package.swift'
+    - 'sed -i "s|url: \\".*\\"|url: \\"${FRAMEWORK_URL}\\"|g" Package.swift'
+    - 'sed -i "s|checksum: \\".*\\"|checksum: \\"${CHECKSUM}\\"|g" Package.swift'
     - cat Package.swift
     - git add Package.swift
     - git add apple/src/SimpleC2PA/SimpleC2PA.swift
