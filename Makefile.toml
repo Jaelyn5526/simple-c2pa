@@ -100,6 +100,3 @@ dependencies = [
   "android-build-bindings",
   "android-assemble-aar-files",
 ]
-
-[tasks.tag-release]
-echo ""

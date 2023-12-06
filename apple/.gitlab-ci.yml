@@ -23,7 +23,7 @@ upload_apple:
 publish_apple:
   stage: release
   image: debian:bullseye
-  before_script:  
+  before_script:
     - apt-get update && apt-get install -y git perl
     - git config --global user.email "${GITLAB_USER_EMAIL}"
     - git config --global user.name "${GITLAB_USER_NAME}"
@@ -31,23 +31,14 @@ publish_apple:
     - cp out/apple/SimpleC2PA.swift apple/src/SimpleC2PA/
     - FRAMEWORK_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/simple_c2pa/apple-v0.${CI_PIPELINE_IID}/SimpleC2PA.xcframework.zip"
     - echo "Calculating checksum..."
-    - CHECKSUM=$(shasum -a 256 ./out/apple/SimpleC2PA.xcframework.zip)    
+    - CHECKSUM=$(shasum -a 256 ./out/apple/SimpleC2PA.xcframework.zip | awk '{print $1}')
     - echo "Updating Package.swift..."
     - echo $FRAMEWORK_URL
     - echo $CHECKSUM
-    - sed -i "s|url: \".*\"|url: \"$FRAMEWORK_URL\"|" Package.swift
-    - sed -i "s|checksum: \".*\"|checksum: \"$CHECKSUM\"|" Package.swift
+    - 'sed -i "s|url: \\".*\\"|url: \\"${FRAMEWORK_URL}"\\"|g" Package.swift'
+    - 'sed -i "s|checksum: \\".*\\"|checksum: \\"${CHECKSUM}"\\"|g" Package.swift'
     - cat Package.swift
     - git add Package.swift
     - git add apple/src/SimpleC2PA/SimpleC2PA.swift
-    - git commit -m "Update Swift files"    
+    - git commit -m "Update Swift files"
     - git push origin HEAD:$CI_COMMIT_REF_NAME
-  
-  
-
-
-  
-  
-  
-  
-  
