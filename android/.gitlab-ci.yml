@@ -35,4 +35,4 @@ publish_android:
   script:
     - cp -r out/android/* android/project/simple_c2pa/src/main/
     - ls -al android/project/simple_c2pa/src/main/
-    - cd android/project && ./gradlew clean assembleRelease
+    - cd android/project && ./gradlew clean assembleRelease && ./gradlew publish
