@@ -32,13 +32,14 @@ pub mod tests {
         let file_data = fs::read(image_path).expect("Can't read image");
         let fingerprint = "BA08 71E8 0200 B95D 8297  7ED0 4D1E C37F 88A7 FDCE".to_string();
 
-        let root_certificate = create_root_certificate(None, None).unwrap();
+        let organization = "Sample Organization".to_string();
+        let root_certificate = create_root_certificate(Some(organization.clone()), None).unwrap();
         let root_bytes = root_certificate.get_certificate_bytes().unwrap();
         let root_path = "outputs/c2pa-root-certificate.crt";
         fs::write(root_path, root_bytes).expect("Can't write file");
 
         let content_credentials_certificate =
-            create_content_credentials_certificate(Some(root_certificate.clone()), None, None)
+            create_content_credentials_certificate(Some(root_certificate.clone()), Some(organization.clone()), None)
                 .unwrap();
         let content_bytes = content_credentials_certificate
             .get_certificate_bytes()
