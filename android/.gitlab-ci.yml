@@ -33,7 +33,6 @@ publish_android:
     - tags
   stage: release
   script:
-    - cp -r out/android/kotlin/* android/project/simple_c2pa/src/main/kotlin/
-    - cp -r out/android/jniLibs/* android/project/simple_c2pa/src/main/jniLibs/
-    - ls -al android/project/simple_c2pa/main/
+    - cp -r out/android/* android/project/simple_c2pa/src/main/
+    - ls -al android/project/simple_c2pa/src/main/
     - cd android/project && ./gradlew assembleRelease
