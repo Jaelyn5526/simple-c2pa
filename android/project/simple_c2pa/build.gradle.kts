@@ -52,15 +52,15 @@ publishing {
       artifact("$buildDir/outputs/aar/${project.name}-release.aar")
       groupId = "info.guardianproject"
       artifactId = "simple_c2pa"
-      version = "0.0.5"
+      version = "0.0.6"
     }
   }
   repositories {
     maven {
       url = uri("https://gitlab.com/api/v4/projects/52243488/packages/maven")
       credentials {
-        this.username =  findProperty("MAVEN_USERNAME") as String?
-        this.password =  findProperty("MAVEN_PASSWORD") as String?
+        this.username =  System.getenv("MAVEN_USERNAME") as String?
+        this.password =  System.getenv("MAVEN_PASSWORD") as String?
       }
     }
   }
