@@ -34,7 +34,6 @@ env = { NAME = "SimpleC2PA", LIB_NAME = "simple_c2pa", HEADER_PATH = "${BINDINGS
 script = '''
 mkdir -p "${NEW_HEADER_DIR}"
 cp "${HEADER_PATH}" "${NEW_HEADER_DIR}/"
-cp "${BINDINGS_DIR}/swift/${NAME}FFI.modulemap" "${NEW_HEADER_DIR}/module.modulemap"
 
 rm -rf "${OUT_DIR}"
 mkdir -p ${OUT_DIR}
