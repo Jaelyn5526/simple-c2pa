@@ -46,8 +46,10 @@ publish_apple:
   stage: release
   image: swift:jammy
   needs:
-    - job: upload_apple
+    - job: build_apple
       artifacts: true
+    - job: upload_apple
+      artifacts: true      
   before_script:
     - apt-get update && apt-get install -y git
     - git config --global user.email "${GITLAB_USER_EMAIL}"
