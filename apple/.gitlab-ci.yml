@@ -28,6 +28,8 @@ upload_apple:
 
 publish_apple:
   only:
+    - main
+    - develop
     - tags    
   stage: release
   image: debian:bullseye
