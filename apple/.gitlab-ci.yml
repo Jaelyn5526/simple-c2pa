@@ -13,7 +13,18 @@ build_apple:
   stage: build
   script:
     - cargo make apple-build
+    - |
+      if [ -n "$CI_COMMIT_TAG" ]; then
+        echo "CUSTOM_REF=$CI_COMMIT_TAG" > ci.env
+        echo "CUSTOM_BRANCH=main" > ci.env
+      else
+        echo "CUSTOM_REF=$CI_COMMIT_BRANCH" > ci.env
+        echo "CUSTOM_BRANCH=$CI_COMMIT_BRANCH" > ci.env
+      fi
+  
   artifacts:
+    reports:
+      dotenv: ci.env
     paths:
       - ./out/apple/
 
@@ -24,20 +35,8 @@ upload_apple:
   stage: upload
   image: curlimages/curl:latest
   script:
-    - |
-      if [ -n "$CI_COMMIT_TAG" ]; then
-        echo "CUSTOM_REF=$CI_COMMIT_TAG" > ci.env
-        echo "CUSTOM_BRANCH=main" > ci.env
-      else
-        echo "CUSTOM_REF=$CI_COMMIT_BRANCH" > ci.env
-        echo "CUSTOM_BRANCH=$CI_COMMIT_BRANCH" > ci.env
-      fi
-    - cat ci.env
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ./out/apple/SimpleC2PA.swift "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/simple_c2pa/${CUSTOM_REF}/SimpleC2PA.swift"'
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ./out/apple/SimpleC2PA.xcframework.zip "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/simple_c2pa/${CUSTOM_REF}/SimpleC2PA.xcframework.zip"'
-  artifacts:
-    reports:
-      dotenv: ci.env
 
 publish_apple:
   only:
@@ -45,11 +44,6 @@ publish_apple:
     - tags
   stage: release
   image: swift:jammy
-  needs:
-    - job: build_apple
-      artifacts: true
-    - job: upload_apple
-      artifacts: true      
   before_script:
     - apt-get update && apt-get install -y git
     - git config --global user.email "${GITLAB_USER_EMAIL}"
