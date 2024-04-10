@@ -19,41 +19,62 @@ build_apple:
 
 upload_apple:
   only:
+    - develop
     - tags
   stage: upload
   image: curlimages/curl:latest
   script:
-    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ./out/apple/SimpleC2PA.swift "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/simple_c2pa/{CI_COMMIT_TAG}/SimpleC2PA.swift"'
-    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ./out/apple/SimpleC2PA.xcframework.zip "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/simple_c2pa/${CI_COMMIT_TAG}/SimpleC2PA.xcframework.zip"'
+    - |
+      if [ -n "$CI_COMMIT_TAG" ]; then
+        echo "CUSTOM_REF=$CI_COMMIT_TAG" > ci.env
+        echo "CUSTOM_BRANCH=main" > ci.env
+      else
+        echo "CUSTOM_REF=$CI_COMMIT_BRANCH" > ci.env
+        echo "CUSTOM_BRANCH=$CI_COMMIT_BRANCH" > ci.env
+      fi
+    - cat ci.env
+    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ./out/apple/SimpleC2PA.swift "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/simple_c2pa/{CUSTOM_REF}/SimpleC2PA.swift"'
+    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ./out/apple/SimpleC2PA.xcframework.zip "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/simple_c2pa/${CUSTOM_REF}/SimpleC2PA.xcframework.zip"'
+  artifacts:
+    reports:
+      dotenv: ci.env
 
 publish_apple:
   only:
-    - main
     - develop
-    - tags    
+    - tags
   stage: release
-  image: debian:bullseye
+  image: swift:jammy
+  needs:
+    - job: upload_apple
+      artifacts: true
   before_script:
-    - apt-get update && apt-get install -y git perl
+    - apt-get update && apt-get install -y git
     - git config --global user.email "${GITLAB_USER_EMAIL}"
     - git config --global user.name "${GITLAB_USER_NAME}"
-    - set-url --push origin "https://${GITLAB_ACCESS_USERNAME}:${GITLAB_ACCESS_TOKEN}@gitlab.com/guardianproject/proofmode/simple-c2pa.git"
+    - git remote set-url --push origin "https://${GITLAB_ACCESS_USERNAME}:${GITLAB_ACCESS_TOKEN}@gitlab.com/guardianproject/proofmode/simple-c2pa.git"
   script:
+    - git pull origin $CUSTOM_BRANCH
+    - git checkout $CUSTOM_BRANCH
     - cp out/apple/SimpleC2PA.swift apple/src/SimpleC2PA/
-    - FRAMEWORK_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/simple_c2pa/apple-v0.${CI_PIPELINE_IID}/SimpleC2PA.xcframework.zip"
+    - FRAMEWORK_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/simple_c2pa/${CUSTOM_REF}/SimpleC2PA.xcframework.zip"
     - echo "Calculating checksum..."
-    - CHECKSUM=$(shasum -a 256 ./out/apple/SimpleC2PA.xcframework.zip | awk '{print $1}')
+    - CHECKSUM=$(swift package compute-checksum ./out/apple/SimpleC2PA.xcframework.zip)
     - echo "Updating Package.swift..."
     - echo $FRAMEWORK_URL
     - echo $CHECKSUM
     - 'sed -i "s|url: \".*\"|url: \"${FRAMEWORK_URL}\"|g" Package.swift'
     - 'sed -i "s|checksum: \".*\"|checksum: \"${CHECKSUM}\"|g" Package.swift'
-    - cat Package.swift
     - git add Package.swift
     - git add apple/src/SimpleC2PA/SimpleC2PA.swift
     - git commit -m "Update Swift files"
-    - git push origin HEAD:$CI_COMMIT_REF_NAME    
-    - git push --delete origin $CI_COMMIT_TAG
-    - git tag -d $CI_COMMIT_TAG
-    - git tag $CI_COMMIT_TAG
-    - git push origin $CI_COMMIT_TAG
+    - git push origin $CUSTOM_BRANCH
+    - |
+      if [ -n "$CI_COMMIT_TAG" ]; then
+         git push --delete origin $CI_COMMIT_TAG
+         git tag -d $CI_COMMIT_TAG
+         git tag $CI_COMMIT_TAG
+         git push origin $CI_COMMIT_TAG    
+      fi
+
+    
