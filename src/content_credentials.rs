@@ -93,8 +93,7 @@ impl ContentCredentials {
         ];
         for alg in algorithms {
             debug!("Trying algorithm {:?}... ", alg);
-            let signer = create_signer::from_keys(&cert, &pkey, alg, None);
-            println!("embedding manifest using signer");
+            let signer = create_signer::from_keys(&cert, &pkey, alg, Some("http://timestamp.digicert.com".to_string()));
             match signer {
                 Ok(signer) => {
                     let mut manifest = self.manifest.lock().unwrap();
