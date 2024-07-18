@@ -9,7 +9,7 @@ build_android:
     - develop
     - tags
   tags:
-    - proofmode-debian
+    - proofmode-macos
   stage: build
   script:
     - cargo make android-build
