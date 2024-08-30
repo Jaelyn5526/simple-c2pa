@@ -17,7 +17,7 @@ let package = Package(
         .binaryTarget(
             name: "SimpleC2PAFramework",
              url: "https://gitlab.com/api/v4/projects/51891540/packages/generic/simple_c2pa/0.0.14/SimpleC2PA.xcframework.zip",
-             checksum: "cb471984a070492234bae7476a5687e9ea81a2204399dd4eaf17abfc247f9c9c"
+             checksum: "42cab7f05d193ae0e85acbe831eaaa86d808d97df2473ab0d1ecf092c5975ea3"
         ),
         .target(
             name: "SimpleC2PA",
